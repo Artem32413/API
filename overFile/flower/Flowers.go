@@ -5,6 +5,7 @@ import (
 	v "apiGO/structFile"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -13,7 +14,7 @@ import (
 	_ "github.com/gin-gonic/gin"
 )
 
-func GetFlowers(c *gin.Context) {//Get
+func GetFlowers(c *gin.Context) { //Get
 	flowers, _, _, err := r.ReadFileGet("file.json")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка разбора JSON"})
@@ -22,7 +23,7 @@ func GetFlowers(c *gin.Context) {//Get
 	}
 	c.IndentedJSON(http.StatusOK, flowers)
 }
-func GetFlowerByID(c *gin.Context) {//GetID
+func GetFlowerByID(c *gin.Context) { //GetID
 	flowers, _, _, err := r.ReadFileGet("file.json")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка разбора JSON"})
@@ -40,30 +41,34 @@ func GetFlowerByID(c *gin.Context) {//GetID
 }
 func DeleteEventByID1(events []v.Flower, id int) []v.Flower {
 	idInt := strconv.Itoa(id)
-	fmt.Println(idInt)
-	for i, event := range events {
+	sl := events
+	fmt.Println(sl)
+	fmt.Println("v")
+	for i, event := range sl {
+		fmt.Println(i)
 		if event.ID == idInt {
-			return append(events[:i], events[i+1:]...)
-			
+			return append(sl[:i+1], sl[:i]...)
 		}
 	}
-	fmt.Println(events)
-	return events
+	fmt.Println(sl)
+	return sl
 }
-func DeletedById(c *gin.Context) {//DeleteID
+func DeletedById(c *gin.Context) { //DeleteID
 	s, err := os.Open("file.json")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла"})
 		return
 	}
 	defer s.Close()
+	decoder, _ := io.ReadAll(s)
+	var data0 []v.Inventory
 	var data []v.Flower
-	decoder := json.NewDecoder(s)
-	if err := decoder.Decode(&data); err != nil {
+
+	if err := json.Unmarshal(decoder, &data0); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})
 		return
 	}
-
+	data = data0[0].Flowers
 	id := c.Param("id")
 	idToDelete, err := strconv.Atoi(id)
 	if err != nil {
@@ -71,7 +76,8 @@ func DeletedById(c *gin.Context) {//DeleteID
 		return
 	}
 	updatedData := DeleteEventByID1(data, idToDelete)
-
+	fmt.Println("v")
+	fmt.Println(updatedData)
 	s, err = os.OpenFile("file.json", os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла для записи"})
@@ -91,7 +97,7 @@ func DeletedById(c *gin.Context) {//DeleteID
 	c.Status(http.StatusNoContent)
 }
 
-func PostFlowers(c *gin.Context) {//Post
+func PostFlowers(c *gin.Context) { //Post
 	s, err := os.Open("file.json")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла"})
