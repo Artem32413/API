@@ -1,0 +1,83 @@
+[
+  {
+    "cars": [
+      {
+        "id": "1",
+        "brand": "Toyota",
+        "model": "Camry",
+        "mileage": 120000,
+        "owners": 2
+      },
+      {
+        "id": "2",
+        "brand": "Toyota",
+        "model": "Camry",
+        "mileage": 120000,
+        "owners": 2
+      },
+      {
+        "id": "2",
+        "brand": "Toyota",
+        "model": "Camry",
+        "mileage": 120000,
+        "owners": 2
+      },
+      {
+        "id": "3",
+        "brand": "Toyota",
+        "model": "Camry",
+        "mileage": 120000,
+        "owners": 2
+      },
+      {
+        "id": "4",
+        "brand": "Toyota",
+        "model": "Camry",
+        "mileage": 120000,
+        "owners": 2
+      }
+    ],
+    "furniture": [
+      {
+        "id": "1",
+        "name": "Стол",
+        "manufacturer": "IKEA",
+        "height": 75,
+        "width": 120,
+        "length": 60
+      },
+      {
+        "id": "2",
+        "name": "Стол",
+        "manufacturer": "IKEA",
+        "height": 75,
+        "width": 120,
+        "length": 60
+      },
+      {
+        "id": "3",
+        "name": "Стол",
+        "manufacturer": "IKEA",
+        "height": 75,
+        "width": 120,
+        "length": 60
+      }
+    ],
+    "flowers": [
+      {
+        "id": "1",
+        "name": "Роза",
+        "quantity": 100,
+        "price": 250,
+        "arrival_date": "2024-11-15"
+      },
+      {
+        "id": "2",
+        "name": "lll",
+        "quantity": 100,
+        "price": 250,
+        "arrival_date": "2024-11-15"
+      }
+    ]
+  }
+]
