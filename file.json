@@ -16,13 +16,6 @@
         "owners": 2
       },
       {
-        "id": "2",
-        "brand": "Toyota",
-        "model": "Camry",
-        "mileage": 120000,
-        "owners": 2
-      },
-      {
         "id": "3",
         "brand": "Toyota",
         "model": "Camry",

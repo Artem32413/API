@@ -5,6 +5,7 @@ import (
 	v "apiGO/structFile"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -38,57 +39,71 @@ func GetFurnitureByID(c *gin.Context) {//GetID
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 }
-func DeleteEventByID1(events []v.Furniture, id int) []v.Furniture {
-	idInt := strconv.Itoa(id)
-	for i, event := range events {
-		if event.ID == idInt {
-			return append(events[:i], events[i+1:]...)
-		}
-	}
-	return events
-}
-func DeletedById(c *gin.Context) {//DeleteID
-	s, err := os.Open("file.json")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла"})
-		return
-	}
-	defer s.Close()
+func DeleteEventByID1(events []v.Furniture, id int) []v.Furniture {  
+    idInt := strconv.Itoa(id)  
+    for i, event := range events {  
+        if event.ID == idInt {  
+			fmt.Println("Успешное удаление")
+            return append(events[:i], events[i+1:]...)
+        }  
+    } 
+			
+    return events 
+} 
+func DeletedById(c *gin.Context) { //DeleteID   
+    s, err := os.Open("file.json")  
+    if err != nil {  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла"})  
+        return  
+    }  
+    defer s.Close()  
+    
+    decoder, err := io.ReadAll(s) 
+    if err != nil {  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при чтении файла"})  
+        return  
+    }  
+    
+    var data0 []v.Inventory  
 
-	var data []v.Furniture
-	decoder := json.NewDecoder(s)
-	if err := decoder.Decode(&data); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})
-		return
-	}
+    if err := json.Unmarshal(decoder, &data0); err != nil {  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})  
+        return  
+    }  
 
-	id := c.Param("id")
-	idToDelete, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат ID"})
-		return
-	}
-	updatedData := DeleteEventByID1(data, idToDelete)
+    data := data0[0].Furniture  
 
-	s, err = os.OpenFile("file.json", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла для записи"})
-		return
-	}
-	defer s.Close()
+    id := c.Param("id")  
+    idToDelete, err := strconv.Atoi(id)  
+    if err != nil {  
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат ID"})  
+        return  
+    }  
 
-	jsonData, err := json.MarshalIndent(updatedData, "", "  ")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при сериализации данных в JSON"})
-		return
-	}
-	if _, err := s.Write(jsonData); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
-		return
-	}
-	c.Status(http.StatusNoContent)
-}
+    updatedData := DeleteEventByID1(data, idToDelete)  
 
+    data0[0].Furniture = updatedData  
+ 
+    s, err = os.OpenFile("file.json", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)  
+    if err != nil {  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла для записи"})  
+        return  
+    }  
+    defer s.Close()  
+
+    jsonData, err := json.MarshalIndent(data0, "", "  ")  
+    if err != nil {  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при сериализации данных в JSON"})  
+        return  
+    }  
+
+    if _, err := s.Write(jsonData); err != nil {  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})  
+        return  
+    }  
+
+    c.JSON(http.StatusAccepted, gin.H{"Успешно": "удаление получилось"})  
+} 
 func PostFurnitures(c *gin.Context) {//Post
 	s, err := os.Open("file.json")
 	if err != nil {

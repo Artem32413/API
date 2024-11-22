@@ -43,14 +43,12 @@ func DeleteEventByID1(events []v.Flower, id int) []v.Flower {
     idInt := strconv.Itoa(id)  
     for i, event := range events {  
         if event.ID == idInt {  
-            // Удаляем элемент, используя append  
-            return append(events[:i], events[i+1:]...) // Удаляет элемент по индексу  
+            return append(events[:i], events[i+1:]...)
         }  
     }  
-    return events // Если ID не найден, возвращаем оригинальный срез  
+    return events 
 } 
-func DeletedById(c *gin.Context) { //DeleteID  
-    // Открытие файла для чтения  
+func DeletedById(c *gin.Context) { //DeleteID   
     s, err := os.Open("file.json")  
     if err != nil {  
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла"})  
@@ -58,24 +56,21 @@ func DeletedById(c *gin.Context) { //DeleteID
     }  
     defer s.Close()  
     
-    // Чтение содержимого файла  
-    decoder, err := io.ReadAll(s) // Обработка ошибки  
+    decoder, err := io.ReadAll(s) 
     if err != nil {  
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при чтении файла"})  
         return  
     }  
     
     var data0 []v.Inventory  
-    // Декодирование JSON в структуру  
+
     if err := json.Unmarshal(decoder, &data0); err != nil {  
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})  
         return  
     }  
 
-    // Получение списка цветов  
     data := data0[0].Flowers  
 
-    // Получение ID из параметров запроса  
     id := c.Param("id")  
     idToDelete, err := strconv.Atoi(id)  
     if err != nil {  
@@ -83,13 +78,10 @@ func DeletedById(c *gin.Context) { //DeleteID
         return  
     }  
 
-    // Удаление элемента  
     updatedData := DeleteEventByID1(data, idToDelete)  
 
-    // Обновление структуры с новыми данными  
     data0[0].Flowers = updatedData  
-
-    // Открытие файла для записи  
+ 
     s, err = os.OpenFile("file.json", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)  
     if err != nil {  
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла для записи"})  
@@ -97,14 +89,12 @@ func DeletedById(c *gin.Context) { //DeleteID
     }  
     defer s.Close()  
 
-    // Сериализация данных обратно в JSON  
     jsonData, err := json.MarshalIndent(data0, "", "  ")  
     if err != nil {  
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при сериализации данных в JSON"})  
         return  
     }  
 
-    // Запись в файл  
     if _, err := s.Write(jsonData); err != nil {  
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})  
         return  
