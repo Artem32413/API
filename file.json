@@ -28,6 +28,13 @@
         "model": "Camry",
         "mileage": 120000,
         "owners": 2
+      },
+      {
+        "id": "",
+        "brand": "новое имя",
+        "model": "sdsd",
+        "mileage": 10000,
+        "owners": 4444
       }
     ],
     "furniture": [
@@ -70,6 +77,13 @@
         "quantity": 100,
         "price": 250,
         "arrival_date": "2024-11-15"
+      },
+      {
+        "id": "",
+        "name": "новое имя",
+        "quantity": 20,
+        "price": 0,
+        "arrival_date": ""
       }
     ]
   }

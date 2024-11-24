@@ -25,7 +25,7 @@ type Flower struct {
     ArrivalDate string `json:"arrival_date"`  
 }  
 type Inventory struct {  
-    Cars      []Car      `json:"cars"`  
-    Furniture []Furniture `json:"furniture"`  
-    Flowers   []Flower   `json:"flowers"`  
-} 
+    Cars      []Car     `json:"cars"`     
+    Furniture []Furniture `json:"furniture"` 
+    Flowers   []Flower   `json:"flowers"`             
+}

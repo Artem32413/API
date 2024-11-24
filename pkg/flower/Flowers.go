@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -143,3 +144,66 @@ func PostFlowers(c *gin.Context) { //Post
 	}
 	c.Status(http.StatusNoContent)
 }
+func PutItem(c *gin.Context) { //Put   
+    file, err := os.Open("file.json")  
+    if err != nil {  
+        log.Println("Ошибка открытия файла:", err)  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Файл не найден"})  
+        return  
+    }  
+    defer file.Close()  
+
+    readFile, err := io.ReadAll(file)  
+    if err != nil {  
+        log.Println("Ошибка чтения файла:", err)  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при чтении файла"})  
+        return  
+    }  
+ 
+    var items []v.Inventory  
+    if err := json.Unmarshal(readFile, &items); err != nil {  
+        log.Println("Ошибка декодирования JSON:", err)  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})  
+        return  
+    }  
+
+    flowerID := c.Param("id")  
+    var flowerToUpdate *v.Flower  
+    for i := range items[0].Flowers {  
+        if items[0].Flowers[i].ID == flowerID {  
+            flowerToUpdate = &items[0].Flowers[i]  
+            break  
+        }  
+    }  
+
+    if flowerToUpdate != nil {  
+        flowerToUpdate.Name = "новое имя"  
+        flowerToUpdate.Quantity += 1  
+        c.JSON(http.StatusOK, gin.H{"message": "Цветок успешно обновлён"})  
+    } else {  
+        newFlower := v.Flower{ID: flowerID, Name: "новое имя", Quantity: 1, Price: 0, ArrivalDate: ""}  
+        items[0].Flowers = append(items[0].Flowers, newFlower)  
+        c.JSON(http.StatusCreated, gin.H{"message": "Цветок успешно добавлен"})  
+    }  
+
+    fileWrite, err := os.OpenFile("file.json", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)  
+    if err != nil {  
+        log.Println("Ошибка открытия файла для записи:", err)  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла для записи"})  
+        return  
+    }  
+    defer fileWrite.Close()  
+
+    updatedDataJSON, err := json.MarshalIndent(items, "", "  ")  
+    if err != nil {  
+        log.Println("Ошибка сериализации данных:", err)  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при сериализации данных"})  
+        return  
+    }  
+
+    if _, err := fileWrite.Write(updatedDataJSON); err != nil {  
+        log.Println("Ошибка записи в файл:", err)  
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})  
+        return  
+    }  
+}  
