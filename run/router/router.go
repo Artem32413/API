@@ -1,8 +1,8 @@
 package router
 import (
-	f "apiGO/overFile/flower"
-	c "apiGO/overFile/car"
-	fu "apiGO/overFile/furniture"
+	f "apiGO/pkg/flower"
+	c "apiGO/pkg/car"
+	fu "apiGO/pkg/furniture"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin"
