@@ -26,6 +26,7 @@ func Run(){
 	router.GET("/furniture/:id", fu.GetFurnitureByID)
 	router.DELETE("/furniture/:id", fu.DeletedById)
 	router.POST("/furniture", fu.PostFurnitures)
+	router.PUT("/furniture", fu.PutItem)
 	router.Run(":8080")
 	
 }
