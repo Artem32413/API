@@ -28,7 +28,8 @@ func Run(){
 	router.GET("/furniture/:id", fu.GetFurnitureByID)
 	router.DELETE("/furniture/:id", fu.DeletedById)
 	router.POST("/furniture", fu.PostFurnitures)
-	router.PUT("/furniture", fu.PutItem)
+	router.PUT("/furniture/:id", fu.PutItem)
+	router.PATCH("/furniture/:id", fu.PatchItem)
 	router.Run(":8080")
 	
 }
