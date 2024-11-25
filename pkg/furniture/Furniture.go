@@ -178,33 +178,113 @@ func PutItem(c *gin.Context) { //Put
 		}
 	}
 
+	var updateRequest v.Furniture
+	if err := c.ShouldBindJSON(&updateRequest); err != nil {
+		log.Println("Ошибка связывания данных:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверные данные запроса"})
+		return
+	}
+
 	if furnitureToUpdate != nil {
-		furnitureToUpdate.Name = "новое имя"
+		furnitureToUpdate.Name = updateRequest.Name
+		furnitureToUpdate.Manufacturer = updateRequest.Manufacturer
+		furnitureToUpdate.Height = updateRequest.Height
+		furnitureToUpdate.Width = updateRequest.Width
+		furnitureToUpdate.Length = updateRequest.Length
 		c.JSON(http.StatusOK, gin.H{"message": "Мебель успешно обновлена"})
 	} else {
-		newFurniture := v.Furniture{ID: furnitureID, Name: "новое имя", Manufacturer: "sdsd", Height: 10000, Width: 4444, Length: 22}
+		newFurniture := v.Furniture{
+			ID:           furnitureID,
+			Name:         updateRequest.Name,
+			Manufacturer: updateRequest.Manufacturer,
+			Height:       updateRequest.Height,
+			Width:        updateRequest.Width,
+			Length:       updateRequest.Length,
+		}
 		items[0].Furniture = append(items[0].Furniture, newFurniture)
 		c.JSON(http.StatusCreated, gin.H{"message": "Мебель успешно добавлена"})
 	}
 
-	fileWrite, err := os.OpenFile("file.json", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		log.Println("Ошибка открытия файла для записи:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла для записи"})
-		return
-	}
-	defer fileWrite.Close()
-
-	updatedDataJSON, err := json.MarshalIndent(items, "", "  ")
-	if err != nil {
-		log.Println("Ошибка сериализации данных:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при сериализации данных"})
-		return
-	}
-
-	if _, err := fileWrite.Write(updatedDataJSON); err != nil {
-		log.Println("Ошибка записи в файл:", err)
+	if err := writeFile("file.json", items); err != nil {
+		log.Println("Ошибка при записи в файл:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
 		return
 	}
+}
+func PatchItem(c *gin.Context) { //Patch
+	file, err := os.Open("file.json")
+	if err != nil {
+		log.Println("Ошибка открытия файла:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Файл не найден"})
+		return
+	}
+	defer file.Close()
+
+	readFile, err := io.ReadAll(file)
+	if err != nil {
+		log.Println("Ошибка чтения файла:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при чтении файла"})
+		return
+	}
+
+	var items []v.Inventory
+	if err := json.Unmarshal(readFile, &items); err != nil {
+		log.Println("Ошибка декодирования JSON:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})
+		return
+	}
+
+	furnitureID := c.Param("id")
+	var furnitureToUpdate *v.Furniture
+	for i := range items[0].Furniture {
+		if items[0].Furniture[i].ID == furnitureID {
+			furnitureToUpdate = &items[0].Furniture[i]
+			break
+		}
+	}
+
+	var updateRequest v.Furniture
+	if err := c.ShouldBindJSON(&updateRequest); err != nil {
+		log.Println("Ошибка связывания данных:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверные данные запроса"})
+		return
+	}
+
+	if furnitureToUpdate != nil {
+		furnitureToUpdate.Name = updateRequest.Name
+		furnitureToUpdate.Height = updateRequest.Height
+
+		if err := writeFile("file.json", items); err != nil {
+			log.Println("Ошибка при записи в файл:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Мебель успешно обновлена"})
+	} else {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Мебель не найдена"})
+	}
+
+	if err := writeFile("file.json", items); err != nil {
+		log.Println("Ошибка при записи в файл:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
+		return
+	}
+}
+func writeFile(filename string, data interface{}) error {
+	fileWrite, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer fileWrite.Close()
+
+	updatedDataJSON, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	if _, err := fileWrite.Write(updatedDataJSON); err != nil {
+		return err
+	}
+
+	return nil
 }

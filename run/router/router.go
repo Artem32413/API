@@ -15,12 +15,14 @@ func Run(){
 	router.GET("/flowers/:id", f.GetFlowerByID)
 	router.DELETE("/flowers/:id", f.DeletedById)
 	router.POST("/flowers", f.PostFlowers)
-	router.PUT("/flowers", f.PutItem)
+	router.PUT("/flowers/:id", f.PutItem)
+	router.PATCH("/flowers/:id", f.PatchItem)
 	//cars
 	router.GET("/cars", c.GetCars)
 	router.GET("/cars/:id", c.GetCarsByID)
 	router.DELETE("/cars/:id", c.DeletedById)
-	router.PUT("/cars", c.PutItem)
+	router.PUT("/cars/:id", c.PutItem)
+	router.PATCH("/cars/:id", c.PatchItem)
 	//furniture
 	router.GET("/furniture", fu.GetFurnitures)
 	router.GET("/furniture/:id", fu.GetFurnitureByID)

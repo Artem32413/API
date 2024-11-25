@@ -144,66 +144,143 @@ func PostFlowers(c *gin.Context) { //Post
 	}
 	c.Status(http.StatusNoContent)
 }
-func PutItem(c *gin.Context) { //Put   
-    file, err := os.Open("file.json")  
-    if err != nil {  
-        log.Println("Ошибка открытия файла:", err)  
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Файл не найден"})  
-        return  
-    }  
-    defer file.Close()  
+func PutItem(c *gin.Context) { //Put
+	file, err := os.Open("file.json")
+	if err != nil {
+		log.Println("Ошибка открытия файла:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Файл не найден"})
+		return
+	}
+	defer file.Close()
 
-    readFile, err := io.ReadAll(file)  
-    if err != nil {  
-        log.Println("Ошибка чтения файла:", err)  
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при чтении файла"})  
-        return  
-    }  
- 
-    var items []v.Inventory  
-    if err := json.Unmarshal(readFile, &items); err != nil {  
-        log.Println("Ошибка декодирования JSON:", err)  
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})  
-        return  
-    }  
+	readFile, err := io.ReadAll(file)
+	if err != nil {
+		log.Println("Ошибка чтения файла:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при чтении файла"})
+		return
+	}
 
-    flowerID := c.Param("id")  
-    var flowerToUpdate *v.Flower  
-    for i := range items[0].Flowers {  
-        if items[0].Flowers[i].ID == flowerID {  
-            flowerToUpdate = &items[0].Flowers[i]  
-            break  
-        }  
-    }  
+	var items []v.Inventory
+	if err := json.Unmarshal(readFile, &items); err != nil {
+		log.Println("Ошибка декодирования JSON:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})
+		return
+	}
 
-    if flowerToUpdate != nil {  
-        flowerToUpdate.Name = "новое имя"  
-        flowerToUpdate.Quantity += 1  
-        c.JSON(http.StatusOK, gin.H{"message": "Цветок успешно обновлён"})  
-    } else {  
-        newFlower := v.Flower{ID: flowerID, Name: "новое имя", Quantity: 1, Price: 0, ArrivalDate: ""}  
-        items[0].Flowers = append(items[0].Flowers, newFlower)  
-        c.JSON(http.StatusCreated, gin.H{"message": "Цветок успешно добавлен"})  
-    }  
+	flowersID := c.Param("id")
+	var flowersToUpdate *v.Flower
+	for i := range items[0].Flowers {
+		if items[0].Flowers[i].ID == flowersID {
+			flowersToUpdate = &items[0].Flowers[i]
+			break
+		}
+	}
 
-    fileWrite, err := os.OpenFile("file.json", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)  
-    if err != nil {  
-        log.Println("Ошибка открытия файла для записи:", err)  
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла для записи"})  
-        return  
-    }  
-    defer fileWrite.Close()  
+	var updateRequest v.Flower
+	if err := c.ShouldBindJSON(&updateRequest); err != nil {
+		log.Println("Ошибка связывания данных:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверные данные запроса"})
+		return
+	}
 
-    updatedDataJSON, err := json.MarshalIndent(items, "", "  ")  
-    if err != nil {  
-        log.Println("Ошибка сериализации данных:", err)  
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при сериализации данных"})  
-        return  
-    }  
+	if flowersToUpdate != nil {
+		flowersToUpdate.Name = updateRequest.Name
+		flowersToUpdate.Quantity = updateRequest.Quantity
+		flowersToUpdate.Price = updateRequest.Price
+		flowersToUpdate.ArrivalDate = updateRequest.ArrivalDate
+		c.JSON(http.StatusOK, gin.H{"message": "Цветок успешно обновлена"})
+	} else {
+		newFlower := v.Flower{
+			ID:      flowersID,
+			Name:   updateRequest.Name,
+			Quantity:   updateRequest.Quantity,
+			Price: updateRequest.Price,
+			ArrivalDate:  updateRequest.ArrivalDate,
+		}
+		items[0].Flowers = append(items[0].Flowers, newFlower)
+		c.JSON(http.StatusCreated, gin.H{"message": "Цветок успешно добавлен"})
+	}
 
-    if _, err := fileWrite.Write(updatedDataJSON); err != nil {  
-        log.Println("Ошибка записи в файл:", err)  
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})  
-        return  
-    }  
-}  
+	if err := writeFile("file.json", items); err != nil {
+		log.Println("Ошибка при записи в файл:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
+		return
+	}
+}
+func PatchItem(c *gin.Context) { //Patch
+	file, err := os.Open("file.json")
+	if err != nil {
+		log.Println("Ошибка открытия файла:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Файл не найден"})
+		return
+	}
+	defer file.Close()
+
+	readFile, err := io.ReadAll(file)
+	if err != nil {
+		log.Println("Ошибка чтения файла:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при чтении файла"})
+		return
+	}
+
+	var items []v.Inventory
+	if err := json.Unmarshal(readFile, &items); err != nil {
+		log.Println("Ошибка декодирования JSON:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})
+		return
+	}
+
+	flowersID := c.Param("id")
+	var flowersToUpdate *v.Flower
+	for i := range items[0].Flowers {
+		if items[0].Flowers[i].ID == flowersID {
+			flowersToUpdate = &items[0].Flowers[i]
+			break
+		}
+	}
+
+	var updateRequest v.Flower
+	if err := c.ShouldBindJSON(&updateRequest); err != nil {
+		log.Println("Ошибка связывания данных:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверные данные запроса"})
+		return
+	}
+
+	if flowersToUpdate != nil {
+		flowersToUpdate.Price = updateRequest.Price
+		flowersToUpdate.Name = updateRequest.Name
+
+		if err := writeFile("file.json", items); err != nil {
+			log.Println("Ошибка при записи в файл:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Цветок успешно обновлен"})
+	} else {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Цветок не найден"})
+	}
+
+	if err := writeFile("file.json", items); err != nil {
+		log.Println("Ошибка при записи в файл:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
+		return
+	}
+}
+func writeFile(filename string, data interface{}) error {
+	fileWrite, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer fileWrite.Close()
+
+	updatedDataJSON, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	if _, err := fileWrite.Write(updatedDataJSON); err != nil {
+		return err
+	}
+
+	return nil
+}
