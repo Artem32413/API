@@ -30,7 +30,7 @@
         "owners": 2
       },
       {
-        "id": "24",
+        "id": "5",
         "brand": "jrrrrrr",
         "model": "f",
         "mileage": 5,
@@ -44,11 +44,25 @@
         "owners": 7
       },
       {
-        "id": "10",
+        "id": "7",
+        "brand": "tyty",
+        "model": "j",
+        "mileage": 9,
+        "owners": 90000000
+      },
+      {
+        "id": "8",
+        "brand": "m",
+        "model": "nn",
+        "mileage": 99999,
+        "owners": 5
+      },
+      {
+        "id": "9",
         "brand": "",
-        "model": "fj",
+        "model": "",
         "mileage": 0,
-        "owners": 7
+        "owners": 0
       }
     ],
     "furniture": [
@@ -70,11 +84,27 @@
       },
       {
         "id": "3",
-        "name": "Стол",
-        "manufacturer": "IKEA",
-        "height": 75,
-        "width": 120,
-        "length": 60
+        "name": "g",
+        "manufacturer": "fg",
+        "height": 0,
+        "width": 0,
+        "length": 0
+      },
+      {
+        "id": "4",
+        "name": "g",
+        "manufacturer": "fg",
+        "height": 0,
+        "width": 0,
+        "length": 0
+      },
+      {
+        "id": "5",
+        "name": "g",
+        "manufacturer": "fg",
+        "height": 0,
+        "width": 0,
+        "length": 0
       }
     ],
     "flowers": [
@@ -87,17 +117,73 @@
       },
       {
         "id": "2",
-        "name": "lll",
-        "quantity": 100,
-        "price": 250,
-        "arrival_date": "2024-11-15"
-      },
-      {
-        "id": "4",
-        "name": "Тюльпан",
+        "name": "h",
         "quantity": 200,
         "price": 30,
         "arrival_date": "2323"
+      },
+      {
+        "id": "3",
+        "name": "g",
+        "quantity": 0,
+        "price": 0,
+        "arrival_date": ""
+      },
+      {
+        "id": "4",
+        "name": "h",
+        "quantity": 200,
+        "price": 30,
+        "arrival_date": "2323"
+      },
+      {
+        "id": "5",
+        "name": "hfgg",
+        "quantity": 200,
+        "price": 30,
+        "arrival_date": "2323"
+      },
+      {
+        "id": "6",
+        "name": "hfgg",
+        "quantity": 200,
+        "price": 30,
+        "arrival_date": "2323"
+      },
+      {
+        "id": "7",
+        "name": "hfgg",
+        "quantity": 200,
+        "price": 30,
+        "arrival_date": "2323"
+      },
+      {
+        "id": "8",
+        "name": "hfgg",
+        "quantity": 200,
+        "price": 30,
+        "arrival_date": "2323"
+      },
+      {
+        "id": "9",
+        "name": "vvvvvv",
+        "quantity": 777777,
+        "price": 0,
+        "arrival_date": "yy"
+      },
+      {
+        "id": "10",
+        "name": "g",
+        "quantity": 0,
+        "price": 0,
+        "arrival_date": ""
+      },
+      {
+        "id": "11",
+        "name": "g",
+        "quantity": 0,
+        "price": 0,
+        "arrival_date": ""
       }
     ]
   }

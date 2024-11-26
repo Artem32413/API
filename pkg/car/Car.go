@@ -103,6 +103,64 @@ func DeletedById(c *gin.Context) { //DeleteID
 
 	c.JSON(http.StatusAccepted, gin.H{"Успешно": "удаление получилось"})
 }
+func PostCars(c *gin.Context) { //Post
+	file, err := os.Open("file.json")
+	if err != nil {
+		log.Println("Ошибка открытия файла:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Файл не найден"})
+		return
+	}
+	defer file.Close()
+
+	readFile, err := io.ReadAll(file)
+	if err != nil {
+		log.Println("Ошибка чтения файла:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при чтении файла"})
+		return
+	}
+
+	var items []v.Inventory
+	if err := json.Unmarshal(readFile, &items); err != nil {
+		log.Println("Ошибка декодирования JSON:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})
+		return
+	}
+
+	nextID := 1
+	if len(items) > 0 && len(items[0].Cars) > 0 {
+		var maxID int
+		for _, flower := range items[0].Cars {
+			idNum, err := strconv.Atoi(flower.ID)
+			if err == nil && idNum > maxID {
+				maxID = idNum
+			}
+		}
+		nextID = maxID + 1
+	}
+
+	var updateRequest v.Car
+	if err := c.ShouldBindJSON(&updateRequest); err != nil {
+		log.Println("Ошибка связывания данных:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверные данные запроса"})
+		return
+	}
+
+	newCar := v.Car{
+		ID:      strconv.Itoa(nextID),
+		Brand:   updateRequest.Brand,
+		Model:   updateRequest.Model,
+		Mileage: updateRequest.Mileage,
+		Owners:  updateRequest.Owners,
+	}
+	items[0].Cars = append(items[0].Cars, newCar)
+	c.JSON(http.StatusCreated, newCar)
+
+	if err := writeFile("file.json", items); err != nil {
+		log.Println("Ошибка при записи в файл:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
+		return
+	}
+}
 func PutItem(c *gin.Context) { //Put
 	file, err := os.Open("file.json")
 	if err != nil {
@@ -147,17 +205,15 @@ func PutItem(c *gin.Context) { //Put
 		carsToUpdate.Model = updateRequest.Model
 		carsToUpdate.Mileage = updateRequest.Mileage
 		carsToUpdate.Owners = updateRequest.Owners
-		c.JSON(http.StatusOK, gin.H{"message": "Машина успешно обновлена"})
-	} else {
-		newCar := v.Car{
-			ID:      carsID,
-			Brand:   updateRequest.Brand,
-			Model:   updateRequest.Model,
-			Mileage: updateRequest.Mileage,
-			Owners:  updateRequest.Owners,
+
+		if err := writeFile("file.json", items); err != nil {
+			log.Println("Ошибка при записи в файл:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
+			return
 		}
-		items[0].Cars = append(items[0].Cars, newCar)
-		c.JSON(http.StatusCreated, gin.H{"message": "Машина успешно добавлена"})
+		c.JSON(http.StatusOK, carsToUpdate)
+	} else {
+		c.JSON(http.StatusNoContent, carsToUpdate)
 	}
 
 	if err := writeFile("file.json", items); err != nil {
@@ -206,17 +262,27 @@ func PatchItem(c *gin.Context) { //Patch
 	}
 
 	if carsToUpdate != nil {
-		carsToUpdate.Model = updateRequest.Model
-		carsToUpdate.Owners = updateRequest.Owners
+		if updateRequest.Brand != ""{
+			carsToUpdate.Brand = updateRequest.Brand
+		}
+		if updateRequest.Model != ""{
+			carsToUpdate.Model = updateRequest.Model
+		}
+		if updateRequest.Mileage != 0{
+			carsToUpdate.Mileage = updateRequest.Mileage
+		}
+		if updateRequest.Owners != 0{
+			carsToUpdate.Owners = updateRequest.Owners
+		}
 
 		if err := writeFile("file.json", items); err != nil {
 			log.Println("Ошибка при записи в файл:", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"message": "Машина успешно обновлена"})
+		c.JSON(http.StatusOK, carsToUpdate)
 	} else {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Автомобиль не найден"})
+		c.JSON(http.StatusNoContent, nil)
 	}
 
 	if err := writeFile("file.json", items); err != nil {

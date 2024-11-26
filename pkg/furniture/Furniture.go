@@ -84,7 +84,6 @@ func DeletedById(c *gin.Context) { //DeleteID
 	updatedData := DeleteEventByID1(data, idToDelete)
 
 	data0[0].Furniture = updatedData
-
 	s, err = os.OpenFile("file.json", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла для записи"})
@@ -106,45 +105,63 @@ func DeletedById(c *gin.Context) { //DeleteID
 	c.JSON(http.StatusAccepted, gin.H{"Успешно": "удаление получилось"})
 }
 func PostFurnitures(c *gin.Context) { //Post
-	s, err := os.Open("file.json")
+	file, err := os.Open("file.json")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла"})
+		log.Println("Ошибка открытия файла:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Файл не найден"})
 		return
 	}
-	defer s.Close()
+	defer file.Close()
 
-	var data []v.Furniture
-	decoder := json.NewDecoder(s)
-	if err := decoder.Decode(&data); err != nil {
+	readFile, err := io.ReadAll(file)
+	if err != nil {
+		log.Println("Ошибка чтения файла:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при чтении файла"})
+		return
+	}
+
+	var items []v.Inventory
+	if err := json.Unmarshal(readFile, &items); err != nil {
+		log.Println("Ошибка декодирования JSON:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при декодировании JSON"})
 		return
 	}
 
-	id := c.Param("id")
-	idToDelete, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат ID"})
-		return
+	nextID := 1
+	if len(items) > 0 && len(items[0].Furniture) > 0 {
+		var maxID int
+		for _, furniture := range items[0].Furniture {
+			idNum, err := strconv.Atoi(furniture.ID)
+			if err == nil && idNum > maxID {
+				maxID = idNum
+			}
+		}
+		nextID = maxID + 1
 	}
-	updatedData := DeleteEventByID1(data, idToDelete)
 
-	s, err = os.OpenFile("file.json", os.O_WRONLY, 0644)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка открытия файла для записи"})
+	var updateRequest v.Furniture
+	if err := c.ShouldBindJSON(&updateRequest); err != nil {
+		log.Println("Ошибка связывания данных:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверные данные запроса"})
 		return
 	}
-	defer s.Close()
 
-	jsonData, err := json.MarshalIndent(updatedData, "", "  ")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при сериализации данных в JSON"})
-		return
+	newfurniture := v.Furniture{
+		ID:           strconv.Itoa(nextID),
+		Name:         updateRequest.Name,
+		Manufacturer: updateRequest.Manufacturer,
+		Height:       updateRequest.Height,
+		Width:        updateRequest.Width,
+		Length:       updateRequest.Length,
 	}
-	if _, err := s.Write(jsonData); err != nil {
+	items[0].Furniture = append(items[0].Furniture, newfurniture)
+	c.JSON(http.StatusCreated, newfurniture)
+
+	if err := writeFile("file.json", items); err != nil {
+		log.Println("Ошибка при записи в файл:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
 		return
 	}
-	c.Status(http.StatusNoContent)
 }
 func PutItem(c *gin.Context) { //Put
 	file, err := os.Open("file.json")
@@ -191,18 +208,15 @@ func PutItem(c *gin.Context) { //Put
 		furnitureToUpdate.Height = updateRequest.Height
 		furnitureToUpdate.Width = updateRequest.Width
 		furnitureToUpdate.Length = updateRequest.Length
-		c.JSON(http.StatusOK, gin.H{"message": "Мебель успешно обновлена"})
-	} else {
-		newFurniture := v.Furniture{
-			ID:           furnitureID,
-			Name:         updateRequest.Name,
-			Manufacturer: updateRequest.Manufacturer,
-			Height:       updateRequest.Height,
-			Width:        updateRequest.Width,
-			Length:       updateRequest.Length,
+
+		if err := writeFile("file.json", items); err != nil {
+			log.Println("Ошибка при записи в файл:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
+			return
 		}
-		items[0].Furniture = append(items[0].Furniture, newFurniture)
-		c.JSON(http.StatusCreated, gin.H{"message": "Мебель успешно добавлена"})
+		c.JSON(http.StatusOK, furnitureToUpdate)
+	} else {
+		c.JSON(http.StatusNoContent, nil)
 	}
 
 	if err := writeFile("file.json", items); err != nil {
@@ -251,17 +265,30 @@ func PatchItem(c *gin.Context) { //Patch
 	}
 
 	if furnitureToUpdate != nil {
-		furnitureToUpdate.Name = updateRequest.Name
-		furnitureToUpdate.Height = updateRequest.Height
+		if updateRequest.Name  != "" {
+			furnitureToUpdate.Name  = updateRequest.Name 
+		}
+		if updateRequest.Manufacturer != "" {
+			furnitureToUpdate.Manufacturer = updateRequest.Manufacturer
+		}
+		if updateRequest.Height != 0 {
+			furnitureToUpdate.Height = updateRequest.Height
+		}
+		if updateRequest.Width != 0 {
+			furnitureToUpdate.Width = updateRequest.Width
+		}
+		if updateRequest.Length != 0 {
+			furnitureToUpdate.Length = updateRequest.Length
+		}
 
 		if err := writeFile("file.json", items); err != nil {
 			log.Println("Ошибка при записи в файл:", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при записи в файл"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"message": "Мебель успешно обновлена"})
+		c.JSON(http.StatusOK, furnitureToUpdate)
 	} else {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Мебель не найдена"})
+		c.JSON(http.StatusNoContent, nil)
 	}
 
 	if err := writeFile("file.json", items); err != nil {
