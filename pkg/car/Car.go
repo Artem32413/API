@@ -15,7 +15,7 @@ import (
 	_ "github.com/gin-gonic/gin"
 )
 
-func GetCars(c *gin.Context) {
+func GetCars(c *gin.Context) { //Get
 	_, cars, _, err := r.ReadFileGet("file.json")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка разбора JSON"})
@@ -24,7 +24,7 @@ func GetCars(c *gin.Context) {
 	}
 	c.IndentedJSON(http.StatusOK, cars)
 }
-func GetCarsByID(c *gin.Context) {
+func GetCarsByID(c *gin.Context) { //GetID
 	_, cars, _, err := r.ReadFileGet("file.json")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка разбора JSON"})

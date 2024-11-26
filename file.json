@@ -3,15 +3,15 @@
     "cars": [
       {
         "id": "1",
-        "brand": "jrrrrrr",
-        "model": "f",
+        "brand": "Ford",
+        "model": "Focus",
         "mileage": 5,
         "owners": 2
       },
       {
         "id": "2",
-        "brand": "jrrrrrr",
-        "model": "fj",
+        "brand": "Ford",
+        "model": "Fiesta",
         "mileage": 5,
         "owners": 20000
       },
@@ -31,36 +31,36 @@
       },
       {
         "id": "5",
-        "brand": "jrrrrrr",
-        "model": "f",
+        "brand": "Honda",
+        "model": "Civic",
         "mileage": 5,
         "owners": 2
       },
       {
         "id": "6",
-        "brand": "",
-        "model": "fj",
+        "brand": "Nissan",
+        "model": "Leaf",
         "mileage": 0,
         "owners": 7
       },
       {
         "id": "7",
-        "brand": "tyty",
-        "model": "j",
+        "brand": "Hyundai",
+        "model": "Elantra",
         "mileage": 9,
         "owners": 90000000
       },
       {
         "id": "8",
-        "brand": "m",
-        "model": "nn",
+        "brand": "Volkswagen",
+        "model": "Golf",
         "mileage": 99999,
         "owners": 5
       },
       {
         "id": "9",
-        "brand": "",
-        "model": "",
+        "brand": "Unknown",
+        "model": "Unknown",
         "mileage": 0,
         "owners": 0
       }
@@ -84,24 +84,24 @@
       },
       {
         "id": "3",
-        "name": "g",
-        "manufacturer": "fg",
+        "name": "Кресло",
+        "manufacturer": "Мебельный Центр",
         "height": 0,
         "width": 0,
         "length": 0
       },
       {
         "id": "4",
-        "name": "g",
-        "manufacturer": "fg",
+        "name": "Кресло",
+        "manufacturer": "Мебельный Центр",
         "height": 0,
         "width": 0,
         "length": 0
       },
       {
         "id": "5",
-        "name": "g",
-        "manufacturer": "fg",
+        "name": "Диван",
+        "manufacturer": "Мебельный Центр",
         "height": 0,
         "width": 0,
         "length": 0
@@ -113,74 +113,67 @@
         "name": "Роза",
         "quantity": 200,
         "price": 30,
-        "arrival_date": "2323"
+        "arrival_date": "2023-01-01"
       },
       {
         "id": "2",
-        "name": "h",
+        "name": "Тюльпан",
         "quantity": 200,
         "price": 30,
-        "arrival_date": "2323"
+        "arrival_date": "2023-01-01"
       },
       {
         "id": "3",
-        "name": "g",
+        "name": "Гвоздика",
         "quantity": 0,
         "price": 0,
         "arrival_date": ""
       },
       {
         "id": "4",
-        "name": "h",
+        "name": "Лилия",
         "quantity": 200,
         "price": 30,
-        "arrival_date": "2323"
+        "arrival_date": "2023-01-01"
       },
       {
         "id": "5",
-        "name": "hfgg",
+        "name": "Фиалка",
         "quantity": 200,
         "price": 30,
-        "arrival_date": "2323"
+        "arrival_date": "2023-01-01"
       },
       {
         "id": "6",
-        "name": "hfgg",
+        "name": "Горшечное растение",
         "quantity": 200,
         "price": 30,
-        "arrival_date": "2323"
+        "arrival_date": "2023-01-01"
       },
       {
         "id": "7",
-        "name": "hfgg",
+        "name": "Гербера",
         "quantity": 200,
         "price": 30,
-        "arrival_date": "2323"
+        "arrival_date": "2023-01-01"
       },
       {
         "id": "8",
-        "name": "hfgg",
+        "name": "Магнолия",
         "quantity": 200,
         "price": 30,
-        "arrival_date": "2323"
+        "arrival_date": "2023-01-01"
       },
       {
         "id": "9",
-        "name": "vvvvvv",
+        "name": "Лаванда",
         "quantity": 777777,
         "price": 0,
-        "arrival_date": "yy"
+        "arrival_date": "2023-01-01"
       },
       {
         "id": "10",
-        "name": "g",
-        "quantity": 0,
-        "price": 0,
-        "arrival_date": ""
-      },
-      {
-        "id": "11",
-        "name": "g",
+        "name": "Базилик",
         "quantity": 0,
         "price": 0,
         "arrival_date": ""
